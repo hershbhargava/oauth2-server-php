@@ -31,13 +31,14 @@ class AuthorizationCode implements GrantTypeInterface
 
     public function validateRequest(RequestInterface $request, ResponseInterface $response)
     {
-        if (!$request->request('code')) {
+        $code = $request->query('code', $request->query('code', $request->request('code')));
+    	if (!$code) {
             $response->setError(400, 'invalid_request', 'Missing parameter: "code" is required');
 
             return false;
         }
 
-        $code = $request->request('code');
+//         $code = $request->request('code');
         if (!$authCode = $this->storage->getAuthorizationCode($code)) {
             $response->setError(400, 'invalid_grant', 'Authorization code doesn\'t exist or is invalid for the client');
 
@@ -49,7 +50,8 @@ class AuthorizationCode implements GrantTypeInterface
          * @uri - http://tools.ietf.org/html/rfc6749#section-4.1.3
          */
         if (isset($authCode['redirect_uri']) && $authCode['redirect_uri']) {
-            if (!$request->request('redirect_uri') || urldecode($request->request('redirect_uri')) != $authCode['redirect_uri']) {
+        	$redirect_uri = $request->query('redirect_uri', $request->query('redirect_uri', $request->request('redirect_uri')));
+        	if (!$redirect_uri || urldecode($redirect_uri) != $authCode['redirect_uri']) {
                 $response->setError(400, 'redirect_uri_mismatch', "The redirect URI is missing or do not match", "#section-4.1.3");
 
                 return false;

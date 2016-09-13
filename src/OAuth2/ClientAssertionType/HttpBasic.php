@@ -103,13 +103,13 @@ class HttpBasic implements ClientAssertionTypeInterface
 
         if ($this->config['allow_credentials_in_request_body']) {
             // Using POST for HttpBasic authorization is not recommended, but is supported by specification
-            if (!is_null($request->request('client_id'))) {
+            if (!is_null($request->query('client_id', $request->request('client_id')))) {
                 /**
                  * client_secret can be null if the client's password is an empty string
                  * @see http://tools.ietf.org/html/rfc6749#section-2.3.1
                  */
 
-                return array('client_id' => $request->request('client_id'), 'client_secret' => $request->request('client_secret'));
+                return array('client_id' => $request->query('client_id', $request->request('client_id')), 'client_secret' => $request->query('client_secret', $request->request('client_secret')));
             }
         }
 
